@@ -16,6 +16,8 @@ THIRD_PARTY_DIR = REPO_ROOT / "third_party"
 OPENCL_HEADERS_DIR = THIRD_PARTY_DIR / "OpenCL-Headers"
 OPENCL_LOADER_DIR = THIRD_PARTY_DIR / "OpenCL-ICD-Loader"
 OPENCL_STUB_DIR = THIRD_PARTY_DIR / "opencl-stubs"
+SPIRV_HEADERS_DIR = THIRD_PARTY_DIR / "SPIRV-Headers"
+VULKAN_HEADERS_DIR = THIRD_PARTY_DIR / "Vulkan-Headers"
 BIN_DIR = REPO_ROOT / "bin"
 BUILD_ROOT = REPO_ROOT / "build"
 
@@ -166,6 +168,17 @@ def resolve_build_dir_for_preset(preset: str) -> Path:
 def ensure_submodule(path: Path, error: str) -> None:
     if not path.is_file():
         fail(error)
+
+
+def ensure_vulkan_header_submodules() -> None:
+    ensure_submodule(
+        VULKAN_HEADERS_DIR / "include/vulkan/vulkan.h",
+        "Missing submodule: third_party/Vulkan-Headers. Run: git submodule update --init --recursive",
+    )
+    ensure_submodule(
+        SPIRV_HEADERS_DIR / "include/spirv/unified1/spirv.hpp",
+        "Missing submodule: third_party/SPIRV-Headers. Run: git submodule update --init --recursive",
+    )
 
 
 def patch_llama_zendnn_install_target() -> bool:
@@ -353,10 +366,7 @@ def android_configure_args(
     cmake_args.extend(cmake_cache_args(cache_vars))
 
     if cache_vars["GGML_VULKAN"] == "ON":
-        ensure_submodule(
-            THIRD_PARTY_DIR / "Vulkan-Headers/include/vulkan/vulkan.h",
-            "Missing submodule: third_party/Vulkan-Headers. Run: git submodule update --init --recursive",
-        )
+        ensure_vulkan_header_submodules()
         toolchain = build_dir / "android-host-toolchain.cmake"
         write_android_host_toolchain(toolchain)
         cmake_args.append(f"-DGGML_VULKAN_SHADERS_GEN_TOOLCHAIN={toolchain}")
@@ -375,7 +385,7 @@ def android_configure_args(
         cmake_args.extend(
             [
                 f"-DVulkan_LIBRARY={vulkan_lib}",
-                f"-DVulkan_INCLUDE_DIR={THIRD_PARTY_DIR / 'Vulkan-Headers/include'}",
+                f"-DVulkan_INCLUDE_DIR={VULKAN_HEADERS_DIR / 'include'}",
             ]
         )
 
@@ -989,6 +999,9 @@ def build_linux(args: argparse.Namespace) -> None:
     clean_build_dir(preset, args.clean)
 
     cache_vars = linux_backend_cache_vars(arch, backend)
+    if cache_vars["GGML_VULKAN"] == "ON":
+        ensure_vulkan_header_submodules()
+
     extra_args = cmake_cache_args(cache_vars)
     host_arch = detect_linux_arch()
     if arch == "arm64" and host_arch != "arm64":
@@ -1095,6 +1108,8 @@ def build_windows(args: argparse.Namespace) -> None:
     arch = args.arch
     backend = args.backend
     cache_vars = windows_backend_cache_vars(arch, backend)
+    if cache_vars["GGML_VULKAN"] == "ON":
+        ensure_vulkan_header_submodules()
 
     if cache_vars["GGML_CUDA"] == "ON" and not (shutil.which("nvcc") or shutil.which("nvcc.exe")):
         fail("Windows CUDA backend build requires CUDA (nvcc not found in PATH)")

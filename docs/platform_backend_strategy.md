@@ -35,6 +35,7 @@
 
 - CUDA lanes require `nvcc` availability.
 - Android Vulkan lanes require NDK-provided `libvulkan.so`.
+- Vulkan lanes use vendored `third_party/SPIRV-Headers` for SPIR-V registry headers required by upstream `llama.cpp`.
 - Android OpenCL lanes require `CL/cl.h` and `libOpenCL.so` from one of:
   - env overrides (`OPENCL_INCLUDE_DIR`, `OPENCL_LIBRARY_ANDROID_<ABI>`)
   - `third_party/opencl-stubs/`

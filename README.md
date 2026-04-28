@@ -71,7 +71,8 @@ Assets are suffixed with platform/arch, for example:
 - `CMakeLists.txt` + `CMakePresets.json`: root-native build configuration.
 - `src/`: `llama_dart_wrapper.*`.
 - `third_party/llama.cpp`: upstream llama.cpp submodule.
-- `third_party/Vulkan-Headers`: Vulkan headers submodule for Android Vulkan builds.
+- `third_party/Vulkan-Headers`: Vulkan API headers submodule for Android Vulkan builds.
+- `third_party/SPIRV-Headers`: SPIR-V registry headers required by the `llama.cpp` Vulkan backend.
 - `third_party/OpenCL-Headers`: OpenCL headers submodule (Android OpenCL builds).
 - `third_party/OpenCL-ICD-Loader`: OpenCL loader submodule used to produce Android `libOpenCL.so` when NDK does not provide one.
 - `third_party/opencl-stubs`: optional local fallback location for OpenCL headers/stubs.

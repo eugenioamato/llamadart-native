@@ -66,6 +66,13 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/llama.cpp/CMakeLists.txt
     message(FATAL_ERROR "Missing submodule: third_party/llama.cpp. Run: git submodule update --init --recursive")
 endif()
 
+if (GGML_VULKAN)
+    set(LLAMADART_SPIRV_HEADERS_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/SPIRV-Headers/include")
+    if (NOT EXISTS "${LLAMADART_SPIRV_HEADERS_INCLUDE}/spirv/unified1/spirv.hpp")
+        message(FATAL_ERROR "Missing submodule: third_party/SPIRV-Headers. Run: git submodule update --init --recursive")
+    endif()
+endif()
+
 # Set defaults for Release builds
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
@@ -92,6 +99,9 @@ endif()
 
 add_subdirectory(third_party/llama.cpp/tools/mtmd EXCLUDE_FROM_ALL)
 add_subdirectory(third_party/llama.cpp)
+if (TARGET ggml-vulkan AND LLAMADART_SPIRV_HEADERS_INCLUDE)
+    target_include_directories(ggml-vulkan SYSTEM PRIVATE "${LLAMADART_SPIRV_HEADERS_INCLUDE}")
+endif()
 llamadart_attach_android_cpu_backend_score(ggml-cpu)
 
 add_library(llamadart_lib SHARED "src/llama_dart_wrapper.cpp")
