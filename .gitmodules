@@ -10,3 +10,6 @@
 [submodule "third_party/OpenCL-ICD-Loader"]
 	path = third_party/OpenCL-ICD-Loader
 	url = https://github.com/KhronosGroup/OpenCL-ICD-Loader.git
+[submodule "third_party/SPIRV-Headers"]
+	path = third_party/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
